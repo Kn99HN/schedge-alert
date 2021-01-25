@@ -18,9 +18,8 @@ const coureSchema = new mongoose.Schema({
         required: true,
     },
     emails: [{
-        email: {
-            type: String
-        }
+        _id: false,
+        email: String
     }]
 })
 

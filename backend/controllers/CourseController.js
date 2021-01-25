@@ -42,13 +42,9 @@ class CourseController {
       Course.findOneAndUpdate(
         { year: year, sem: sem, registrationNumber: registrationNumber },
         {
-          $push: {
-            emails: {
-              $not: {
-                $elemMatch: {
-                  email: email,
-                },
-              },
+          "$addToSet": {
+            "emails": {
+                "email": email,
             },
           },
         },
