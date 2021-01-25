@@ -2,13 +2,18 @@ const mongoose = require("mongoose");
 const Course = require("../models/course");
 
 class CourseController {
+  static async getAllCourses(req) {
+    const { year, sem } = req;
+    const resp = await Course.find().exec();
+    const filteredCourses = resp.filter((doc) => {
+      return doc.year === year && doc.sem === sem;
+    });
+    return filteredCourses;
+  }
+
   static async getCourse(req) {
     const { year, sem, registrationNumber } = req;
-    if (
-      year == null ||
-      sem == null ||
-      registrationNumber == null
-    ) {
+    if (year == null || sem == null || registrationNumber == null) {
       throw "Invalid parameters";
     } else {
       const resp = await Course.findOne({
@@ -75,7 +80,7 @@ class CourseController {
           name: name,
         },
         {
-          '$pull': {
+          $pull: {
             emails: {
               email: email,
             },

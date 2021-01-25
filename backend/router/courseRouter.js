@@ -1,5 +1,6 @@
 const courseRouter = require("express").Router();
 const CourseController = require("../controllers/CourseController");
+const PollController = require("../controllers/PollController");
 
 courseRouter.post("/addCourse/:year/:sem/:registrationNumber", (req, res) => {
   const { year, sem, registrationNumber } = req.params;
@@ -35,17 +36,9 @@ courseRouter.delete("/deleteCourse/:year/:sem/:registrationNumber", (req, res) =
   return res.status(201);
 });
 
-courseRouter.get("/getCourse/:year/:sem/:registrationNumber", async (req, res) => {
-  const { year, sem, registrationNumber } = req.params;
-
-  const emails = await CourseController.getCourse(
-    {
-      year,
-      sem,
-      registrationNumber,
-    }
-  );
-  return res.status(200).json(emails);
+courseRouter.get("/test/:year/:sem", async (req, res) => {
+  const resp = await PollController.poll(10000);
+  console.log(resp);
 });
 
 module.exports = courseRouter;
