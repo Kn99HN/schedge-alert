@@ -3,21 +3,20 @@ const Course = require("../models/course");
 
 class CourseController {
   static async getCourse(req) {
-    const { year, sem, registrationNumber, email } = req;
+    const { year, sem, registrationNumber } = req;
     if (
       year == null ||
       sem == null ||
-      registrationNumber == null ||
-      email == null
+      registrationNumber == null
     ) {
       throw "Invalid parameters";
     } else {
-      const resp = await Course.find({
+      const resp = await Course.findOne({
         year: year,
         sem: sem,
         registrationNumber: registrationNumber,
       }).exec();
-      return [...Set(resp.map((doc) => doc.emails))];
+      return [...new Set(resp.emails.map((doc) => doc.email))];
     }
   }
 
@@ -31,33 +30,35 @@ class CourseController {
     ) {
       throw "Invalid parameters";
     } else {
-      const savedCourse = new Course({
-        registrationNumber: registrationNumber,
-        year: year,
-        sem: sem,
-        registrationNumber: registrationNumber,
-        name: name,
-        emails: [email],
-      });
       Course.findOneAndUpdate(
-        { year: year, sem: sem, registrationNumber: registrationNumber },
         {
-          "$addToSet": {
-            "emails": {
-                "email": email,
+          year: year,
+          sem: sem,
+          registrationNumber: registrationNumber,
+          name: name,
+          emails: {
+            $elemMatch: {
+              $ne: { email: email },
+            },
+          },
+        },
+        {
+          $addToSet: {
+            emails: {
+              email: email,
             },
           },
         },
         { safe: true, upsert: true },
         function (err, model) {
-          console.log(err);
+          if (err) console.log(err);
         }
       );
     }
   }
 
   static async removeFromCourse(req, res) {
-    const { year, sem, registrationNumber, email } = req;
+    const { year, sem, registrationNumber, email, name } = req;
     if (
       year == null ||
       sem == null ||
@@ -66,20 +67,26 @@ class CourseController {
     ) {
       throw "Invalid parameters";
     } else {
-      Course.findOneAndUpdate(
-        { year: year, sem: sem, registrationNumber: registrationNumber },
+      return Course.findOneAndUpdate(
         {
-          $pull: {
+          year: year,
+          sem: sem,
+          registrationNumber: registrationNumber,
+          name: name,
+        },
+        {
+          '$pull': {
             emails: {
-              $elemMatch: {
-                email: email,
-              },
+              email: email,
             },
           },
         },
         { multi: true },
-        function (err, model) {
-          console.log(err);
+        (err, model) => {
+          if (err) console.log(err);
+          if (model.emails.length === 0) {
+            model.remove();
+          }
         }
       );
     }

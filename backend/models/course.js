@@ -31,6 +31,6 @@ coureSchema.set('toJSON', {
     }
 })
 
-const Course = mongoose.model('Course', coureSchema);
+const Course = mongoose.model(`Course`, coureSchema);
 
 module.exports = Course;
