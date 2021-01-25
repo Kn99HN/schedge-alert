@@ -8,6 +8,7 @@ class CourseController {
     const filteredCourses = resp.filter((doc) => {
       return doc.year === year && doc.sem === sem;
     });
+    console.log(filteredCourses);
     return filteredCourses;
   }
 
@@ -26,11 +27,12 @@ class CourseController {
   }
 
   static async addCourse(req, res) {
-    const { year, sem, registrationNumber, name, email } = req;
+    const { year, sem, registrationNumber, name, status, email } = req;
     if (
       year == null ||
       sem == null ||
       registrationNumber == null ||
+      status == null ||
       email == null
     ) {
       throw "Invalid parameters";
@@ -41,6 +43,7 @@ class CourseController {
           sem: sem,
           registrationNumber: registrationNumber,
           name: name,
+          status: status,
           emails: {
             $elemMatch: {
               $ne: { email: email },
@@ -94,6 +97,30 @@ class CourseController {
           }
         }
       );
+    }
+  }
+
+  static async updateStatus(req) {
+    const { year, sem, registrationNumber, status, name } = req;
+    if (
+      year == null ||
+      sem == null ||
+      registrationNumber == null ||
+      email == null
+    ) {
+      throw "Invalid parameters";
+    } else {
+      Course.updateMany({
+        year: year,
+        sem: sem,
+        registrationNumber: registrationNumber,
+        status: status,
+        name: name
+      }, {
+        "$set": {
+          status: status
+        }
+      })
     }
   }
 }

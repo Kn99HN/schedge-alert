@@ -9,6 +9,10 @@ const coureSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    status: {
+        type: String,
+        required: true,
+    },
     registrationNumber: {
         type: Number,
         required: true,
