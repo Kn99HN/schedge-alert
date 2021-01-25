@@ -12,9 +12,11 @@ class CourseController {
     ) {
       throw "Invalid parameters";
     } else {
-      const resp = await Course.findById(
-        `${registrationNumber}-${year}-${sem}`
-      ).exec();
+      const resp = await Course.find({
+        year: year,
+        sem: sem,
+        registrationNumber: registrationNumber,
+      }).exec();
       return [...Set(resp.map((doc) => doc.emails))];
     }
   }
@@ -30,21 +32,21 @@ class CourseController {
       throw "Invalid parameters";
     } else {
       const savedCourse = new Course({
-        _id: `${registrationNumber}-${year}-${sem}`,
         registrationNumber: registrationNumber,
         year: year,
         sem: sem,
         registrationNumber: registrationNumber,
+        name: name,
         emails: [email],
       });
-      savedCourse.findByIdAndUpdate(
-        savedCourse._id,
+      Course.findOneAndUpdate(
+        { year: year, sem: sem, registrationNumber: registrationNumber },
         {
           $push: {
             emails: {
               $not: {
                 $elemMatch: {
-                  email,
+                  email: email,
                 },
               },
             },
@@ -68,14 +70,13 @@ class CourseController {
     ) {
       throw "Invalid parameters";
     } else {
-      const id = `${registrationNumber}-${year}-${sem}`;
-      savedCourse.findByIdAndUpdate(
-        id,
+      Course.findOneAndUpdate(
+        { year: year, sem: sem, registrationNumber: registrationNumber },
         {
           $pull: {
             emails: {
               $elemMatch: {
-                email,
+                email: email,
               },
             },
           },

@@ -1,17 +1,12 @@
 const mongoose = require("mongoose");
 
 const coureSchema = new mongoose.Schema({
-    _id: {
-        type: Number,
-        required: true,
-        unique: true
-    },
     year: {
         type: Number,
         required: true,
     },
     sem: {
-        type: Number,
+        type: String,
         required: true,
     },
     registrationNumber: {
@@ -22,7 +17,11 @@ const coureSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    emails: [String]
+    emails: [{
+        email: {
+            type: String
+        }
+    }]
 })
 
 coureSchema.set('toJSON', {

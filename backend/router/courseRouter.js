@@ -1,9 +1,9 @@
 const courseRouter = require("express").Router();
 const CourseController = require("../controllers/CourseController");
 
-courseRouter.post("/addCourse/:year/:sem/:registratioNumber", (req, res) => {
+courseRouter.post("/addCourse/:year/:sem/:registrationNumber", (req, res) => {
   const { year, sem, registrationNumber } = req.params;
-  const { email } = req.body;
+  const { email, courseName } = req.body;
 
   CourseController.addCourse(
     {
@@ -11,6 +11,7 @@ courseRouter.post("/addCourse/:year/:sem/:registratioNumber", (req, res) => {
       sem,
       registrationNumber,
       email,
+      name: courseName
     },
     res
   );
