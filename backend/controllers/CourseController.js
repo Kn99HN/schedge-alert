@@ -76,7 +76,7 @@ class CourseController {
   }
 
   static async updateStatus(year, sem, registrationNumber, status, currentStatus, name) {
-    await Course.updateMany(
+    return await Course.updateMany(
       {
         year: year,
         sem: sem,
@@ -89,7 +89,7 @@ class CourseController {
           status: currentStatus,
         },
       }
-    ).orFail();
+    );
   }
 }
 

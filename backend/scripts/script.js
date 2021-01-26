@@ -3,13 +3,20 @@ const CourseController = require("../controllers/CourseController");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
 const config = require("../utils/config");
-const util = require("../utils/util");
+
+const semester = {
+  sp: "Spring",
+  su: "Summer",
+  fa: "Fall",
+  ja: "January",
+};
 
 async function send({
   year,
   sem,
   registrationNumber,
   name,
+  status,
   currentStatus,
   emails,
 }) {
@@ -32,7 +39,7 @@ async function send({
     from: '"test" <test@example.com>', // sender address
     to: receivers, // list of receivers
     subject: "Hello", // Subject line
-    text: `Course: ${name} with registration number: ${registrationNumber} for ${util.semester[sem]}-${year} has changed status from ${status} to ${currentStatus}`, // plain text body
+    text: `Course: ${name} with registration number: ${registrationNumber} for ${semester[sem]}-${year} has changed status from ${status} to ${currentStatus}`, // plain text body
     html: "<b>Hello world?</b>", // html body
   });
 
@@ -57,16 +64,11 @@ async function checkStatuses(year, sem) {
     const filteredCourses = coursesWithStatus.filter(
       (course) => course.status !== course.currentStatus
     );
-    if (filteredCourses) {
+    if (filteredCourses.length === 0) {
       console.log("Empty array...No new update");
     } else {
       const emailResp = Promise.all(
-        filteredCourses.forEach(async (course) => {
-          return await send(course);
-        })
-      );
-      const dbStatuses = Promise.all(
-        filteredCourses.forEach(async (course) => {
+        filteredCourses.map(async (course) => {
           const {
             year,
             sem,
@@ -75,13 +77,16 @@ async function checkStatuses(year, sem) {
             currentStatus,
             name,
           } = course;
-          return await CourseController.updateStatus(
-            year,
-            sem,
-            registrationNumber,
-            status,
-            currentStatus,
-            name
+          return Promise.all(
+            await send(course),
+            await CourseController.updateStatus(
+              year,
+              sem,
+              registrationNumber,
+              status,
+              currentStatus,
+              name
+            )
           );
         })
       );
@@ -103,5 +108,4 @@ mongoose
   .catch((error) => {
     console.log("error connection to MongoDB:", error.message);
   });
-// need to open connection with mongodb through mongoose first -> Write a wrapper class for this
 checkStatuses(2021, "sp");
