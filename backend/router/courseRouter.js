@@ -1,23 +1,23 @@
 const courseRouter = require("express").Router();
 const CourseController = require("../controllers/CourseController");
+const { ErrorHelper } = require("../utils/error_helper");
 
-courseRouter.post(
+courseRouter.put(
   "/addCourse/:year/:sem/:registrationNumber",
-  async (req, res) => {
+  async (req, res, next) => {
     const { year, sem, registrationNumber } = req.params;
     const { status, email, courseName } = req.body;
-    if (
-      !year ||
-      !sem ||
-      !registrationNumber ||
-      !status ||
-      !email ||
-      !courseName
-    )
-      return res.status(400).json("Invalid params");
-
     try {
-      await CourseController.upsertCourse(
+      if (
+        !year ||
+        !sem ||
+        !registrationNumber ||
+        !status ||
+        !email ||
+        !courseName
+      )
+        throw new ErrorHelper(400, "Bad Request", ["Invalid Params"]);
+      const resp = await CourseController.upsertCourse(
         year,
         sem,
         registrationNumber,
@@ -25,42 +25,42 @@ courseRouter.post(
         email,
         courseName
       );
-    } catch (error) {
-      return res.status(400).json("Fail to insert");
+      return res.status(200).send("Successful");
+    } catch (e) {
+      return next(e);
     }
-    return res.status(201).send("Course successfully added!");
   }
 );
 
 courseRouter.delete(
   "/removeCourse/:year/:sem/:registrationNumber",
-  async (req, res) => {
+  async (req, res, next) => {
     const { year, sem, registrationNumber } = req.params;
     const { status, email, courseName } = req.body;
-    if (
-      !year ||
-      !sem ||
-      !registrationNumber ||
-      !status ||
-      !email ||
-      !courseName
-    )
-      return res.status(400).json("Invalid params");
 
     try {
-      await CourseController.remove(
+      if (
+        !year ||
+        !sem ||
+        !registrationNumber ||
+        !status ||
+        !email ||
+        !courseName
+      )
+        throw new ErrorHelper(400, "Bad Request", ["Invalid Params"]);
+      const resp = await CourseController.remove(
         year,
         sem,
         registrationNumber,
         status,
         email,
-        courseName,
+        courseName
       );
+      if(!resp) throw new ErrorHelper(400, "Bad Request", ["There is no course as requested"]);
+      return res.status(200).send("Removed successfully!");
     } catch (e) {
-      console.log(e.message);
-      return res.status(400).json("Fail to remove");
+      return next(e);
     }
-    return res.status(200).json("Deleted successfully");
   }
 );
 

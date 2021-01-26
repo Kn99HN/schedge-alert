@@ -27,7 +27,7 @@ class CourseController {
     email,
     name
   ) {
-    await Course.findOneAndUpdate(
+    const resp = await Course.findOneAndUpdate(
       {
         year: year,
         sem: sem,
@@ -42,15 +42,13 @@ class CourseController {
           },
         },
       },
-      { safe: true, upsert: true },
-      (err, model) => {
-        if (err) console.log(err);
-      }
+      { safe: true, upsert: true }
     );
+    return resp;
   }
 
   static async remove(year, sem, registrationNumber, status, email, name) {
-    await Course.findOneAndUpdate(
+    const resp = await Course.findOneAndUpdate(
       {
         year: year,
         sem: sem,
@@ -65,18 +63,20 @@ class CourseController {
           },
         },
       },
-      { multi: true, new: true },
-      (err, model) => {
-        if (err) console.log(err);
-        if (model.emails.length === 0) {
-          model.remove();
-        }
-      }
+      { multi: true, new: true }
     );
+    return resp;
   }
 
-  static async updateStatus(year, sem, registrationNumber, status, currentStatus, name) {
-    return await Course.updateMany(
+  static async updateStatus(
+    year,
+    sem,
+    registrationNumber,
+    status,
+    currentStatus,
+    name
+  ) {
+    const resp = await Course.updateMany(
       {
         year: year,
         sem: sem,
@@ -90,6 +90,8 @@ class CourseController {
         },
       }
     );
+    console.log(resp);
+    return resp;
   }
 }
 
