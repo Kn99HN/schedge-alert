@@ -68,14 +68,14 @@ class CourseController {
     return resp;
   }
 
-  static async updateStatus(
+  static async updateStatus({
     year,
     sem,
     registrationNumber,
     status,
     currentStatus,
-    name
-  ) {
+    name,
+  }) {
     const resp = await Course.updateMany(
       {
         year: year,

@@ -1,8 +1,8 @@
-const SchedgeController = require("../controllers/SchedgeController");
-const CourseController = require("../controllers/CourseController");
-const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
+const SchedgeController = require("../controllers/schedgeController");
+const CourseController = require("../controllers/courseController");
 const config = require("../utils/config");
+const nodemailer = require("nodemailer");
 
 const semester = {
   sp: "Spring",
@@ -20,7 +20,9 @@ async function send({
   currentStatus,
   emails,
 }) {
-  const receivers = emails.map((email) => email.email).join(",");
+  const emls = emails.map((email) => email.email);
+  if (emls.length === 0 || !emls) throw new Error("No recipients");
+  const receivers = emls.join(",");
   const testAccount = await nodemailer.createTestAccount();
 
   // create reusable transporter object using the default SMTP transport
@@ -69,24 +71,9 @@ async function checkStatuses(year, sem) {
     } else {
       const emailResp = Promise.all(
         filteredCourses.map(async (course) => {
-          const {
-            year,
-            sem,
-            registrationNumber,
-            status,
-            currentStatus,
-            name,
-          } = course;
           return Promise.all(
             await send(course),
-            await CourseController.updateStatus(
-              year,
-              sem,
-              registrationNumber,
-              status,
-              currentStatus,
-              name
-            )
+            await CourseController.updateStatus(course)
           );
         })
       );
@@ -108,4 +95,8 @@ mongoose
   .catch((error) => {
     console.log("error connection to MongoDB:", error.message);
   });
-checkStatuses(2021, "sp");
+try {
+  checkStatuses(2021, "sp");
+} catch(e) {
+  console.log(e);
+}
