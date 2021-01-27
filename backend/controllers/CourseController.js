@@ -90,7 +90,6 @@ class CourseController {
         },
       }
     );
-    console.log(resp);
     return resp;
   }
 }

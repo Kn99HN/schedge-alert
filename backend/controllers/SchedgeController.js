@@ -9,7 +9,9 @@ class SchedgeController {
       `${config.Schedge_URL}/${year}/${sem}/${registrationNumber}?full=true`
     );
     if (resp.data === undefined || resp.status !== 200)
-      throw new ErrorHelper(resp.status, "Bad Request", ["Course not found"]);
+      throw new ErrorHelper(resp.status, "Bad Request", [
+        `Course reg.no: ${registrationNumber}, year: ${year}, sem: ${sem} not found`,
+      ]);
     return resp.data.status;
   }
 }

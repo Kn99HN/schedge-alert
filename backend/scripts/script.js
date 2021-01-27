@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const SchedgeController = require("../controllers/schedgeController");
 const CourseController = require("../controllers/courseController");
+const logger = require("../utils/logger");
+const db = require("../utils/db_helper");
 const config = require("../utils/config");
 const nodemailer = require("nodemailer");
 
@@ -21,7 +23,10 @@ async function send({
   emails,
 }) {
   const emls = emails.map((email) => email.email);
-  if (emls.length === 0 || !emls) throw new Error("No recipients");
+  if (emls.length === 0 || !emls)
+    throw new Error(
+      `No recipients for courses reg.no: ${registrationNumber}, year: ${year}, sem: ${sem}, name: ${name}`
+    );
   const receivers = emls.join(",");
   const testAccount = await nodemailer.createTestAccount();
 
@@ -51,10 +56,9 @@ async function send({
 
 async function checkStatuses(year, sem) {
   const courses = await CourseController.getAllCourses(year, sem);
-
   console.log("Checking...");
   try {
-    const coursesWithStatus = await Promise.all(
+    const coursesWithStatus = await Promise.allSettled(
       courses.map(async (course) => {
         const status = await SchedgeController.getStatus(course);
         return {
@@ -63,13 +67,20 @@ async function checkStatuses(year, sem) {
         };
       })
     );
-    const filteredCourses = coursesWithStatus.filter(
-      (course) => course.status !== course.currentStatus
-    );
-    if (filteredCourses.length === 0) {
+    const filteredCourses = coursesWithStatus
+      .filter((promise) => {
+        if (promise.status === "rejected") {
+          logger.error(promise.reason.message);
+          return false;
+        }
+        return true;
+      })
+      .map((course) => course.value)
+      .filter((course) => course.status !== course.currentStatus);
+    if (filteredCourses.length === 0 || !filteredCourses) {
       console.log("Empty array...No new update");
     } else {
-      const emailResp = Promise.all(
+      const emailResp = await Promise.allSettled(
         filteredCourses.map(async (course) => {
           return Promise.all(
             await send(course),
@@ -77,26 +88,24 @@ async function checkStatuses(year, sem) {
           );
         })
       );
-      return emailResp;
+      emailResp.filter((email) => {
+        if (email.status === "rejected") {
+          logger.error(
+            `Error happened while sending the message: ${email.reason.message}`
+          );
+          return false;
+        }
+        return true;
+      });
     }
   } catch (error) {
     throw new Error(error);
   }
 }
 
-mongoose
-  .connect(config.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("connected to MongoDB");
-  })
-  .catch((error) => {
-    console.log("error connection to MongoDB:", error.message);
-  });
+db.connect();
 try {
   checkStatuses(2021, "sp");
-} catch(e) {
-  console.log(e);
+} catch (e) {
+  logger.error(e.message);
 }
