@@ -1,9 +1,12 @@
-const mongoose = require("mongoose");
 const SchedgeController = require("../controllers/schedgeController");
 const CourseController = require("../controllers/courseController");
+
+const config = require("../utils/config");
 const logger = require("../utils/logger");
 const db = require("../utils/db_helper");
-const nodemailer = require("nodemailer");
+const sgMailer = require("@sendgrid/mail");
+
+sgMailer.setApiKey(config.SENDGRID_API_KEY);
 
 const semester = {
   sp: "Spring",
@@ -27,29 +30,16 @@ async function send({
       `No recipients for courses reg.no: ${registrationNumber}, year: ${year}, sem: ${sem}, name: ${name}`
     );
   const receivers = emls.join(",");
-  const testAccount = await nodemailer.createTestAccount();
-
-  // create reusable transporter object using the default SMTP transport
-  const transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: testAccount.user, // generated ethereal user
-      pass: testAccount.pass, // generated ethereal password
-    },
-  });
 
   // send mail with defined transport object
-  const info = await transporter.sendMail({
-    from: '"test" <test@example.com>', // sender address
-    to: receivers, // list of receivers
-    subject: "Hello", // Subject line
-    text: `Course: ${name} with registration number: ${registrationNumber} for ${semester[sem]}-${year} has changed status from ${status} to ${currentStatus}`, // plain text body
-    html: "<b>Hello world?</b>", // html body
+  const info = await sgMailer.send({
+    from: '"Schedge Alert" <schedge.alert@gmail.com>',
+    to: receivers,
+    subject: `${name} (${registrationNumber}) status update`,
+    text: `Course: ${name} with registration number: ${registrationNumber} for ${semester[sem]}-${year} has changed status from ${status} to ${currentStatus}`,
   });
 
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+  console.log("Preview URL: %s", info.getTestMessageUrl(info));
   return info.messageId;
 }
 

@@ -6,7 +6,7 @@ class SchedgeController {
   static async getStatus(course) {
     const { year, sem, registrationNumber } = course;
     const resp = await axios.get(
-      `${config.Schedge_URL}/${year}/${sem}/${registrationNumber}?full=true`
+      `${config.SCHEDGE_URL}/${year}/${sem}/${registrationNumber}?full=true`
     );
     if (resp.data === undefined || resp.status !== 200)
       throw new ErrorHelper(resp.status, "Bad Request", [
