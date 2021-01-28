@@ -1,4 +1,4 @@
-require('dotenv').config()
+require("dotenv").config();
 
 const PORT = process.env.PORT;
 const SCHEDGE_URL = process.env.SCHEDGE_URL;
@@ -9,5 +9,5 @@ module.exports = {
   PORT,
   SCHEDGE_URL,
   MONGODB_URI,
-  SENDGRID_API_KEY
-}
+  SENDGRID_API_KEY,
+};

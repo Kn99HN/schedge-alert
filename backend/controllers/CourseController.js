@@ -8,7 +8,7 @@ class CourseController {
     });
     return filteredCourses;
   }
-
+  
   static async getCourse(year, sem, registrationNumber) {
     return await Course.findOne({
       year: year,

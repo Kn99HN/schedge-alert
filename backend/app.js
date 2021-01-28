@@ -1,10 +1,12 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
+
 const courseRouter = require("./router/courseRouter");
 const middleware = require('./utils/middleware')
 const logger = require('./utils/logger')
 const db = require("./utils/db_helper");
+
+const app = express();
 
 db.connect().catch((err) => {
   logger.error(err);
