@@ -1,5 +1,5 @@
-const SchedgeController = require("../controllers/schedgeController");
-const CourseController = require("../controllers/courseController");
+const SchedgeController = require("../controllers/SchedgeController");
+const CourseController = require("../controllers/CourseController");
 
 const config = require("../utils/config");
 const logger = require("../utils/logger");

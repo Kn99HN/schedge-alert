@@ -1,5 +1,5 @@
 const courseRouter = require("express").Router();
-const CourseController = require("../controllers/courseController");
+const CourseController = require("../controllers/CourseController");
 const { ErrorHelper } = require("../utils/error_helper");
 const logger = require("../utils/logger");
 
