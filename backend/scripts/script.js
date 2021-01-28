@@ -3,7 +3,6 @@ const SchedgeController = require("../controllers/schedgeController");
 const CourseController = require("../controllers/courseController");
 const logger = require("../utils/logger");
 const db = require("../utils/db_helper");
-const config = require("../utils/config");
 const nodemailer = require("nodemailer");
 
 const semester = {
