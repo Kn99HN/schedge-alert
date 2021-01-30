@@ -2,6 +2,7 @@ const courseRouter = require("express").Router();
 const CourseController = require("../controllers/CourseController");
 const { ErrorHelper } = require("../utils/error_helper");
 const logger = require("../utils/logger");
+const util = require('../utils/util');
 
 courseRouter.post(
   "/course/:year/:sem/:registrationNumber",
@@ -15,7 +16,8 @@ courseRouter.post(
         !registrationNumber ||
         !status ||
         !email ||
-        !name
+        !name ||
+        !(sem in util.semester)
       )
         throw new ErrorHelper(400, "Bad Request", ["Invalid Params"]);
       const resp = await CourseController.upsertCourse(
@@ -56,7 +58,8 @@ courseRouter.delete(
         !registrationNumber ||
         !status ||
         !email ||
-        !name
+        !name ||
+        !(sem in util.semester)
       )
         throw new ErrorHelper(400, "Bad Request", ["Invalid Params"]);
       const resp = await CourseController.remove(
