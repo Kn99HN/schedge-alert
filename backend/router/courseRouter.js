@@ -3,11 +3,11 @@ const CourseController = require("../controllers/CourseController");
 const { ErrorHelper } = require("../utils/error_helper");
 const logger = require("../utils/logger");
 
-courseRouter.put(
-  "/addCourse/:year/:sem/:registrationNumber",
+courseRouter.post(
+  "/course/:year/:sem/:registrationNumber",
   async (req, res, next) => {
     const { year, sem, registrationNumber } = req.params;
-    const { status, email, courseName } = req.body;
+    const { status, email, name } = req.body;
     try {
       if (
         !year ||
@@ -15,7 +15,7 @@ courseRouter.put(
         !registrationNumber ||
         !status ||
         !email ||
-        !courseName
+        !name
       )
         throw new ErrorHelper(400, "Bad Request", ["Invalid Params"]);
       const resp = await CourseController.upsertCourse(
@@ -24,7 +24,7 @@ courseRouter.put(
         registrationNumber,
         status,
         email,
-        courseName
+        name
       );
       if (resp) {
         logger.info(
@@ -44,10 +44,10 @@ courseRouter.put(
 );
 
 courseRouter.delete(
-  "/removeCourse/:year/:sem/:registrationNumber",
+  "/course/:year/:sem/:registrationNumber",
   async (req, res, next) => {
     const { year, sem, registrationNumber } = req.params;
-    const { status, email, courseName } = req.body;
+    const { status, email, name } = req.body;
 
     try {
       if (
@@ -56,7 +56,7 @@ courseRouter.delete(
         !registrationNumber ||
         !status ||
         !email ||
-        !courseName
+        !name
       )
         throw new ErrorHelper(400, "Bad Request", ["Invalid Params"]);
       const resp = await CourseController.remove(
@@ -65,7 +65,7 @@ courseRouter.delete(
         registrationNumber,
         status,
         email,
-        courseName
+        name
       );
       if (!resp)
         throw new ErrorHelper(400, "Bad Request", [

@@ -19,7 +19,8 @@ app.use(express.json());
 app.use(middleware.morganLogger());
 
 // routers
-app.use("/api", courseRouter);
+app.use("/", courseRouter);
+
 
 // handler
 app.use(middleware.unknownRouteHandler);
