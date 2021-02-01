@@ -33,7 +33,7 @@ async function send({
 
   // send mail with defined transport object
   const info = await sgMailer.send({
-    from: '"Schedge Alert" <schedge.alert@gmail.com>',
+    from: 'Schedge Alert <schedge.alert@gmail.com>',
     to: receivers,
     subject: `${name} (${registrationNumber}) status update`,
     text: `Course: ${name} with registration number: ${registrationNumber} for ${semester[sem]}-${year} has changed status from ${status} to ${currentStatus}`,
